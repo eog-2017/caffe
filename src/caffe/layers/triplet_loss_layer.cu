@@ -8,7 +8,7 @@ namespace caffe {
 template <typename Dtype>
 void TripletLossLayer<Dtype>::Forward_gpu(const vector<Blob<Dtype>*>& bottom,
     const vector<Blob<Dtype>*>& top) {
-  int count = bottom[0]->count();
+  /*int count = bottom[0]->count();
   caffe_gpu_sub(
       count,
       bottom[0]->gpu_data(),
@@ -17,13 +17,13 @@ void TripletLossLayer<Dtype>::Forward_gpu(const vector<Blob<Dtype>*>& bottom,
   Dtype dot;
   caffe_gpu_dot(count, diff_.gpu_data(), diff_.gpu_data(), &dot);
   Dtype loss = dot / bottom[0]->num() / Dtype(2);
-  top[0]->mutable_cpu_data()[0] = loss;
+  top[0]->mutable_cpu_data()[0] = loss;*/
 }
 
 template <typename Dtype>
 void TripletLossLayer<Dtype>::Backward_gpu(const vector<Blob<Dtype>*>& top,
     const vector<bool>& propagate_down, const vector<Blob<Dtype>*>& bottom) {
-  for (int i = 0; i < 2; ++i) {
+  /*for (int i = 0; i < 2; ++i) {
     if (propagate_down[i]) {
       const Dtype sign = (i == 0) ? 1 : -1;
       const Dtype alpha = sign * top[0]->cpu_diff()[0] / bottom[i]->num();
@@ -34,7 +34,7 @@ void TripletLossLayer<Dtype>::Backward_gpu(const vector<Blob<Dtype>*>& top,
           Dtype(0),                           // beta
           bottom[i]->mutable_gpu_diff());  // b
     }
-  }
+  }*/
 }
 
 INSTANTIATE_LAYER_GPU_FUNCS(TripletLossLayer);
