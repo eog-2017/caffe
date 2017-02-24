@@ -49,30 +49,32 @@ void ImageTripletDataLayer<Dtype>::DataLayerSetUp(
 	 * Stores the locations for each object which can be fetched
 	 * randomly while we prepare the batches.
 	 */
-	boost::fusion::map<boost::fusion::pair<string, boost::fusion::set<string> > > obj_map;
+	std::map<string, std::set<string> > obj_map;
 
 	for (boost::filesystem::recursive_directory_iterator iter(image_set_folder),
 			end; iter != end; ++iter) {
 
 		std::string name = iter->path().filename().string();
 		if (regex_match(name, what, pattern)) {
-			LOG(INFO)<< what[1];
+			LOG(DEBUG)<< what[1];
 			std::ifstream infile(iter->path().c_str());
 			string index;
 			string presence;
-			boost::fusion::set<string> list;
-			while (infile >> index >> presence) if (presence == "1") boost::fusion::push_back(list, index);
+			std::set<string> list;
+			while (infile >> index >> presence) if (presence == "1") list.insert(index);
 
-			boost::fusion::pair<string, boost::fusion::set<string> > custom_pair("help", list);
-			//custom_pair = boost::fusion::pair("help", list);//(what[1], list);
-
-			boost::fusion::push_back(obj_map, custom_pair);
+			obj_map[what[1].str()] = list;
 		}
 
 	}
 
+	std::set<string> test = obj_map["laugh_joke_book"];
+
+	LOG(INFO) << *test.begin();
+
 	// Read the file with filenames and labels
-	const string& source = this->layer_param_.image_data_param().source();
+	CHECK(this->layer_param_.image_data_param().has_source());
+	const string& source = image_set_folder + this->layer_param_.image_data_param().source();
 	LOG(INFO)<< "Opening file " << source;
 	std::ifstream infile(source.c_str());
 	string filename;
