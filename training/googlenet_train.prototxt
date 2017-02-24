@@ -12,13 +12,13 @@ layer {
     root_folder: "/home/isl-server/Datasets/APCAugData/"
     batch_size: 16
     shuffle: true
+    new_height: 224
+    new_width: 224
   }
   transform_param {
     mean_value: 103.939
     mean_value: 116.779
     mean_value: 123.68
-    new_height: 224
-    new_width: 224
     mirror: true
   }
 }

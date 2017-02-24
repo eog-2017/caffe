@@ -37,18 +37,20 @@ void TripletLossLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& bottom,
 	 * Normalize the vectors
 	 */
 	Dtype len_a = caffe_cpu_dot(count, a_n_.cpu_data(), a_n_.cpu_data());
-	a_n_.scale_data(1/len_a);
+	a_n_.scale_data(1 / len_a);
 	Dtype len_p = caffe_cpu_dot(count, p_n_.cpu_data(), p_n_.cpu_data());
-	p_n_.scale_data(1/len_p);
+	p_n_.scale_data(1 / len_p);
 	Dtype len_n = caffe_cpu_dot(count, n_n_.cpu_data(), n_n_.cpu_data());
-	n_n_.scale_data(1/len_n);
+	n_n_.scale_data(1 / len_n);
 
 	caffe_sub(count, a_n_.cpu_data(), p_n_.cpu_data(),
 			p_diff_.mutable_cpu_data());
 	caffe_sub(count, a_n_.cpu_data(), n_n_.cpu_data(),
 			n_diff_.mutable_cpu_data());
-	Dtype positive = caffe_cpu_dot(count, p_diff_.cpu_data(), p_diff_.cpu_data());
-	Dtype negative = caffe_cpu_dot(count, n_diff_.cpu_data(), n_diff_.cpu_data());
+	Dtype positive = caffe_cpu_dot(count, p_diff_.cpu_data(),
+			p_diff_.cpu_data());
+	Dtype negative = caffe_cpu_dot(count, n_diff_.cpu_data(),
+			n_diff_.cpu_data());
 
 	Dtype loss = positive - negative + alpha / bottom[0]->num() / Dtype(2);
 	top[0]->mutable_cpu_data()[0] = loss;
