@@ -5,11 +5,12 @@ name: "GoogleNet_with_triplet_loss"
 layer {
   name: "data"
   type: "ImageTripletData"
-  top: "data"
-  top: "data_p"
-  top: "data_n"
+  top: "anchor"
+  top: "positive"
+  top: "negative"
   image_data_param{
     root_folder: "/home/isl-server/Datasets/APCAugData/"
+    source: "train.txt"
     batch_size: 16
     shuffle: true
     new_height: 224
