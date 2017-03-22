@@ -2,56 +2,38 @@
 #uses shared parameters between 3 networks to learn a
 #very special loss function
 
-name: "triplet_loss_train.prototxt"
+name: "lenet_train.prototxt"
 
 layer {
-  name: "pair_data"
-  type: "Data"
-  top: "pair_data"
-  top: "sim"
+  name: "data"
+  type: "ImageTripletData"
+  top: "anchor"
+  top: "positive"
+  top: "negative"
+  image_data_param{
+    root_folder: "/media/arc-2017/data/ashish/isl-workspace/apc_new_objects_tote_data/rcnn_dataset/ARC2017Data/"
+    source: "train.txt"
+    batch_size: 16
+    shuffle: true
+    new_height: 224
+    new_width: 224
+  }
+  transform_param {
+    mean_value: 97.594
+    mean_value: 93.197
+    mean_value: 173.815
+    mirror: false
+    crop_size: 224
+  }
   include {
     phase: TRAIN
   }
-  transform_param {
-    scale: 0.00390625
-  }
-  data_param {
-    source: "examples/siamese/mnist_siamese_train_leveldb"
-    batch_size: 64
-  }
-}
-layer {
-  name: "pair_data"
-  type: "Data"
-  top: "pair_data"
-  top: "sim"
-  include {
-    phase: TEST
-  }
-  transform_param {
-    scale: 0.00390625
-  }
-  data_param {
-    source: "examples/siamese/mnist_siamese_test_leveldb"
-    batch_size: 100
-  }
 }
 
 layer {
-  name: "slice_pair"
-  type: "Slice"
-  bottom: "pair_data"
-  top: "data"
-  top: "data_p"
-  slice_param {
-    slice_dim: 1
-    slice_point: 1
-  }
-}
-layer {
   name: "conv1"
   type: "Convolution"
-  bottom: "data"
+  bottom: "anchor"
   top: "conv1"
   param {
     name: "conv1_w"
@@ -195,10 +177,11 @@ layer {
     }
   }
 }
+
 layer {
   name: "conv1_p"
   type: "Convolution"
-  bottom: "data_p"
+  bottom: "positive"
   top: "conv1_p"
   param {
     name: "conv1_w"
@@ -341,11 +324,13 @@ layer {
       type: "constant"
     }
   }
-}layer {
-  name: "conv1_p"
+}
+
+layer {
+  name: "conv1_n"
   type: "Convolution"
-  bottom: "data_p"
-  top: "conv1_p"
+  bottom: "negative"
+  top: "conv1_n"
   param {
     name: "conv1_w"
     lr_mult: 1
@@ -367,10 +352,10 @@ layer {
   }
 }
 layer {
-  name: "pool1_p"
+  name: "pool1_n"
   type: "Pooling"
-  bottom: "conv1_p"
-  top: "pool1_p"
+  bottom: "conv1_n"
+  top: "pool1_n"
   pooling_param {
     pool: MAX
     kernel_size: 2
@@ -378,10 +363,10 @@ layer {
   }
 }
 layer {
-  name: "conv2_p"
+  name: "conv2_n"
   type: "Convolution"
-  bottom: "pool1_p"
-  top: "conv2_p"
+  bottom: "pool1_n"
+  top: "conv2_n"
   param {
     name: "conv2_w"
     lr_mult: 1
@@ -403,10 +388,10 @@ layer {
   }
 }
 layer {
-  name: "pool2_p"
+  name: "pool2_n"
   type: "Pooling"
-  bottom: "conv2_p"
-  top: "pool2_p"
+  bottom: "conv2_n"
+  top: "pool2_n"
   pooling_param {
     pool: MAX
     kernel_size: 2
@@ -414,10 +399,10 @@ layer {
   }
 }
 layer {
-  name: "ip1_p"
+  name: "ip1_n"
   type: "InnerProduct"
-  bottom: "pool2_p"
-  top: "ip1_p"
+  bottom: "pool2_n"
+  top: "ip1_n"
   param {
     name: "ip1_w"
     lr_mult: 1
@@ -437,16 +422,16 @@ layer {
   }
 }
 layer {
-  name: "relu1_p"
+  name: "relu1_n"
   type: "ReLU"
-  bottom: "ip1_p"
-  top: "ip1_p"
+  bottom: "ip1_n"
+  top: "ip1_n"
 }
 layer {
-  name: "ip2_p"
+  name: "ip2_n"
   type: "InnerProduct"
-  bottom: "ip1_p"
-  top: "ip2_p"
+  bottom: "ip1_n"
+  top: "ip2_n"
   param {
     name: "ip2_w"
     lr_mult: 1
@@ -466,10 +451,10 @@ layer {
   }
 }
 layer {
-  name: "feat_p"
+  name: "feat_n"
   type: "InnerProduct"
-  bottom: "ip2_p"
-  top: "feat_p"
+  bottom: "ip2_n"
+  top: "feat_n"
   param {
     name: "feat_w"
     lr_mult: 1
@@ -487,4 +472,15 @@ layer {
       type: "constant"
     }
   }
+}
+layer {
+	name: "t_loss"
+    type: "TripletLoss"
+    bottom: "ip2"
+    bottom: "ip2_p"
+    bottom: "ip2_n"
+    top: "loss"
+    triplet_loss_param {
+    	alpha: 0.4
+    }
 }

@@ -521,6 +521,9 @@ Dtype Net<Dtype>::ForwardFromTo(int start, int end) {
     for (int c = 0; c < before_forward_.size(); ++c) {
       before_forward_[c]->run(i);
     }
+    if(i == start) {
+        LOG(INFO) << "concat :" << ((Blob<Dtype>*)((vector<Blob<Dtype>*>)top_vecs_[i])[i])->cpu_data()[0];
+    }
     Dtype layer_loss = layers_[i]->Forward(bottom_vecs_[i], top_vecs_[i]);
     loss += layer_loss;
     if (debug_info_) { ForwardDebugInfo(i); }

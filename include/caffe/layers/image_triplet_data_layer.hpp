@@ -15,12 +15,10 @@
 
 namespace caffe {
 
-struct list {
+typedef struct list {
 	vector<string>::iterator it;
 	vector<string> list;
-};
-
-typedef struct list list;
+} list;
 
 /**
  * @brief Provides data to the Net from image files.
@@ -53,11 +51,8 @@ class ImageTripletDataLayer : public BasePrefetchingDataLayer<Dtype> {
   virtual void load_batch(Batch<Dtype>* batch);
 
   map<string, list> objects_;
-  /**
-   * Remove these two when the objects_ is working fine...
-   */
-  vector<std::pair<string, string> > lines_;
-  int lines_id_;
+  vector<string> keys_;
+  vector<string>::iterator curr_key_;
 };
 
 
